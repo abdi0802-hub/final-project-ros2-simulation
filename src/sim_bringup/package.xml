@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>sim_bringup</name>
+  <version>0.1.0</version>
+  <description>Spawn the dummy arena and rover in Gazebo Classic.</description>
+  <maintainer email="radityazhafran.05@gmail.com">rdtzaa</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rover_steering_v1</exec_depend>
+  <exec_depend>ros2_livox_simulation</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

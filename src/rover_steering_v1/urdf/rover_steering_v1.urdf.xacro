@@ -1,0 +1,480 @@
+<?xml version="1.0"?>
+<robot name="rover_steering_v1" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Link maya yang menempel di tanah -->
+  <link name="base_footprint">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+    </inertial>
+  </link>
+
+  <!-- Joint untuk mengangkat bodi utama dari tanah -->
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <!-- Angka Z (0.5235) adalah estimasi jarak dari base_link ke dasar roda -->
+    <origin xyz="0 0 0.5235" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.038189 1.4028E-08 -0.4" rpy="0 0 0" />
+      <mass value="5.3544" />
+      <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.5"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/base_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.62745 0.62745 0.62745 1" />
+      </material>
+    </visual>
+    <!-- MENGGUNAKAN BOX AGAR TIDAK OVERFLOW -->
+    <collision>
+      <origin xyz="0 0 0.1" rpy="0 0 0" /> 
+      <geometry>
+        <box size="0.6 0.4 0.2" /> 
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ================================== -->
+  <!-- MODUL RODA 1 (DEPAN KIRI)          -->
+  <!-- ================================== -->
+  <link name="steer1_link">
+    <inertial>
+      <origin xyz="-0.00087464 -1.9867E-08 -0.185" rpy="0 0 0" />
+      <mass value="4.662" />
+      <inertia ixx="0.039839" ixy="5.1891E-09" ixz="-5.3223E-09" iyy="0.02869" iyz="1.7198E-10" izz="0.02869" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/steer1_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.96078 0.96078 0.96471 1" />
+      </material>
+    </visual>
+    <!-- COLLISION DIHAPUS UNTUK OPTIMASI -->
+  </link>
+
+  <!-- UBAH KE FIXED: Steer tidak bisa belok lagi -->
+  <joint name="steer1_joint" type="fixed">
+    <origin xyz="0.425 0.425 -0.1885" rpy="0 0 1.5708" />
+    <parent link="base_link" />
+    <child link="steer1_link" />
+  </joint>
+  
+  <link name="wheel1_link">
+    <inertial>
+      <origin xyz="1.9869E-08 1.9968E-08 -0.079149" rpy="0 0 0" />
+      <mass value="4.6609" />
+      <inertia ixx="0.02869" ixy="-1.7072E-10" ixz="5.1892E-09" iyy="0.02869" iyz="5.3209E-09" izz="0.039839" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/wheel1_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.098039 0.098039 0.098039 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.15" length="0.1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- UBAH KE CONTINUOUS: Roda bisa muter terus -->
+  <joint name="wheel1_joint" type="continuous">
+    <origin xyz="-0.08 0 -0.185" rpy="1.5708 0 -1.5708" />
+    <parent link="steer1_link" />
+    <child link="wheel1_link" />
+    <axis xyz="0 0 -1" />
+    <limit effort="100" velocity="50" />
+    <dynamics friction="0.2"/>
+  </joint>
+
+  <!-- ================================== -->
+  <!-- MODUL RODA 2 (BELAKANG KIRI)       -->
+  <!-- ================================== -->
+  <link name="steer2_link">
+    <inertial>
+      <origin xyz="-0.00087463 1.9098E-08 -0.185" rpy="0 0 0" />
+      <mass value="4.662" />
+      <inertia ixx="0.039839" ixy="-5.0174E-09" ixz="-5.2922E-09" iyy="0.02869" iyz="-1.4328E-10" izz="0.02869" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/steer2_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.96078 0.96078 0.96471 1" />
+      </material>
+    </visual>
+    <!-- COLLISION DIHAPUS UNTUK OPTIMASI -->
+  </link>
+
+  <!-- UBAH KE FIXED -->
+  <joint name="steer2_joint" type="fixed">
+    <origin xyz="-0.42458 0.425 -0.1885" rpy="0 0 1.5708" />
+    <parent link="base_link" />
+    <child link="steer2_link" />
+  </joint>
+  
+  <link name="wheel2_link">
+    <inertial>
+      <origin xyz="-1.8996E-08 1.9916E-08 -0.079149" rpy="0 0 0" />
+      <mass value="4.6608" />
+      <inertia ixx="0.02869" ixy="1.4201E-10" ixz="-5.016E-09" iyy="0.02869" iyz="5.2923E-09" izz="0.039839" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/wheel2_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.098039 0.098039 0.098039 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.15" length="0.1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- UBAH KE CONTINUOUS -->
+  <joint name="wheel2_joint" type="continuous">
+    <origin xyz="-0.08 0 -0.185" rpy="1.5708 0 -1.5708" />
+    <parent link="steer2_link" />
+    <child link="wheel2_link" />
+    <axis xyz="0 0 -1" />
+    <limit effort="100" velocity="50" />
+    <dynamics friction="0.2"/>
+  </joint>
+
+  <!-- ================================== -->
+  <!-- MODUL RODA 3 (DEPAN KANAN)         -->
+  <!-- ================================== -->
+  <link name="steer3_link">
+    <inertial>
+      <origin xyz="0.00087463 -1.9027E-08 -0.185" rpy="0 0 0" />
+      <mass value="4.662" />
+      <inertia ixx="0.039839" ixy="-5.0099E-09" ixz="5.303E-09" iyy="0.02869" iyz="1.5972E-10" izz="0.02869" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/steer3_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.96078 0.96078 0.96471 1" />
+      </material>
+    </visual>
+    <!-- COLLISION DIHAPUS UNTUK OPTIMASI -->
+  </link>
+
+  <!-- UBAH KE FIXED -->
+  <joint name="steer3_joint" type="fixed">
+    <origin xyz="0.425 -0.425 -0.1885" rpy="0 0 1.5708" />
+    <parent link="base_link" />
+    <child link="steer3_link" />
+  </joint>
+  
+  <link name="wheel3_link">
+    <inertial>
+      <origin xyz="1.9002E-08 -1.9979E-08 -0.079149" rpy="0 0 0" />
+      <mass value="4.6608" />
+      <inertia ixx="0.02869" ixy="1.5896E-10" ixz="5.0096E-09" iyy="0.02869" iyz="-5.3024E-09" izz="0.039839" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/wheel3_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.098039 0.098039 0.098039 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.15" length="0.1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- UBAH KE CONTINUOUS -->
+  <joint name="wheel3_joint" type="continuous">
+    <origin xyz="0.08 0 -0.185" rpy="-1.5708 0 -1.5708" />
+    <parent link="steer3_link" />
+    <child link="wheel3_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="100" velocity="50" />
+    <dynamics friction="0.2"/>
+  </joint>
+
+  <!-- ================================== -->
+  <!-- MODUL RODA 4 (BELAKANG KANAN)      -->
+  <!-- ================================== -->
+  <link name="steer4_link">
+    <inertial>
+      <origin xyz="0.00087464 1.9832E-08 -0.185" rpy="0 0 0" />
+      <mass value="4.662" />
+      <inertia ixx="0.039839" ixy="5.178E-09" ixz="5.3424E-09" iyy="0.02869" iyz="-1.6409E-10" izz="0.02869" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/steer4_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.96078 0.96078 0.96471 1" />
+      </material>
+    </visual>
+    <!-- COLLISION DIHAPUS UNTUK OPTIMASI -->
+  </link>
+
+  <!-- UBAH KE FIXED -->
+  <joint name="steer4_joint" type="fixed">
+    <origin xyz="-0.42458 -0.425 -0.1885" rpy="0 0 1.5708" />
+    <parent link="base_link" />
+    <child link="steer4_link" />
+  </joint>
+  
+  <link name="wheel4_link">
+    <inertial>
+      <origin xyz="-1.9834E-08 -2.009E-08 -0.079149" rpy="0 0 0" />
+      <mass value="4.6609" />
+      <inertia ixx="0.02869" ixy="-1.6283E-10" ixz="-5.178E-09" iyy="0.02869" iyz="-5.3409E-09" izz="0.039839" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://rover_steering_v1/meshes/wheel4_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.098039 0.098039 0.098039 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.15" length="0.1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- UBAH KE CONTINUOUS -->
+  <joint name="wheel4_joint" type="continuous">
+    <origin xyz="0.08 0 -0.185" rpy="-1.5708 0 -1.5708" />
+    <parent link="steer4_link" />
+    <child link="wheel4_link" />
+    <axis xyz="0 0 1" />
+    <limit effort="100" velocity="50" />
+    <dynamics friction="0.2"/>
+  </joint>
+
+  <!-- ============================================== -->
+  <!-- GAZEBO PHYSICS TAGS UNTUK FRICTION & STIFFNESS -->
+  <!-- ============================================== -->
+  <!-- ============================================== -->
+  <!-- GAZEBO PHYSICS TAGS UNTUK FRICTION & STIFFNESS -->
+  <!-- ============================================== -->
+  <gazebo reference="wheel1_link">
+    <mu1>1.0</mu1>
+    <mu2>0.1</mu2> <!-- Diberi sedikit traksi agar tidak seperti es -->
+    <fdir1>1 0 0</fdir1> <!-- KUNCI ARAH MAJU -->
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <gazebo reference="wheel2_link">
+    <mu1>1.0</mu1>
+    <mu2>0.1</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <gazebo reference="wheel3_link">
+    <mu1>1.0</mu1>
+    <mu2>0.1</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <gazebo reference="wheel4_link">
+    <mu1>1.0</mu1>
+    <mu2>0.1</mu2>
+    <fdir1>1 0 0</fdir1>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <!-- ============================================== -->
+  <!-- PLUGIN DIFF DRIVE (GAZEBO CLASSIC ROS 2)       -->
+  <!-- ============================================== -->
+  <gazebo>
+    <plugin name="skid_steer_drive" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <namespace>/</namespace>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+      </ros>
+
+      <update_rate>50</update_rate>
+
+      <!-- Parameter Roda & Jarak (Duplikasi Dihapus) -->
+      <num_wheel_pairs>2</num_wheel_pairs>
+      <left_joint>wheel1_joint</left_joint>
+      <left_joint>wheel2_joint</left_joint>
+      <right_joint>wheel3_joint</right_joint>
+      <right_joint>wheel4_joint</right_joint>
+      
+      <!-- Menggunakan 0.85 agar tuas belok lebih lebar dan bertenaga -->
+      <wheel_separation>0.85</wheel_separation>
+      <wheel_diameter>0.30</wheel_diameter>
+      
+      <!-- Torsi Ekstrem -->
+      <max_wheel_torque>2000</max_wheel_torque>
+      <max_wheel_acceleration>15.0</max_wheel_acceleration>
+      
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+  </gazebo>
+
+<!-- ============================================== -->
+<!-- PLUGIN JOINT STATE (GAZEBO CLASSIC ROS 2)      -->
+<!-- ============================================== -->
+<gazebo>
+<plugin name="gazebo_ros_joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+  <ros>
+    <namespace>/</namespace>
+    <remapping>joint_states:=joint_states</remapping>
+  </ros>
+  <update_rate>50</update_rate>
+  <joint_name>wheel1_joint</joint_name>
+  <joint_name>wheel2_joint</joint_name>
+  <joint_name>wheel3_joint</joint_name>
+  <joint_name>wheel4_joint</joint_name>
+</plugin>
+</gazebo>
+
+<!-- ============================================== -->
+<!-- SENSOR LIVOX MID-360                           -->
+<!-- ============================================== -->
+<link name="livox_frame">
+<inertial>
+  <mass value="0.1"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+</inertial>
+<visual>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <geometry>
+    <!-- Representasi visual LiDAR berupa silinder kecil -->
+    <cylinder radius="0.03" length="0.06"/> 
+  </geometry>
+  <material name="black">
+    <color rgba="0.1 0.1 0.1 1"/>
+  </material>
+</visual>
+</link>
+
+<!-- Sambungan LiDAR ke bodi utama -->
+<joint name="livox_joint" type="fixed">
+<!-- Posisikan Z (0.3) agar berada di atas atap rover -->
+<origin xyz="0.0 0.0 0.3" rpy="0 0 0"/> 
+<parent link="base_link"/>
+<child link="livox_frame"/>
+</joint>
+
+<!-- Plugin Livox Gazebo Classic -->
+<!-- Plugin Livox Gazebo Classic (Diadaptasi dari mid360.xacro) -->
+  <gazebo reference="livox_frame">
+    <sensor type="ray" name="livox_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <!-- Nama plugin sudah disesuaikan dengan xacro -->
+      <plugin name="livox_sensor_plugin" filename="libros2_livox.so">
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>100</samples>
+              <resolution>1</resolution>
+              <min_angle>0.0</min_angle>
+              <max_angle>6.2831852</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.126</min_angle>
+              <max_angle>0.963</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>200.0</max>
+            <resolution>0.002</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <visualize>false</visualize>
+        <samples>40000</samples>
+        <downsample>1</downsample>
+        <!-- Xacro resolves the scan pattern from the active workspace. -->
+        <csv_file_name>$(find ros2_livox_simulation)/scan_mode/mid360.csv</csv_file_name>
+        <!-- Tag <topic> diperbaiki sesuai xacro bawaan -->
+        <topic>/livox/lidar</topic>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+<!-- ============================================== -->
+<!-- SENSOR IMU (SYARAT MUTLAK FAST-LIO)            -->
+<!-- ============================================== -->
+<gazebo reference="base_link">
+<gravity>true</gravity>
+<sensor name="imu_sensor" type="imu">
+  <always_on>true</always_on>
+  <update_rate>200</update_rate>
+  <visualize>true</visualize>
+  <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+    <ros>
+      <namespace>/</namespace>
+      <!-- Pastikan topik diremap ke /imu -->
+      <remapping>~/out:=imu</remapping>
+    </ros>
+    <initial_orientation_as_reference>false</initial_orientation_as_reference>
+  </plugin>
+</sensor>
+</gazebo>
+
+</robot>

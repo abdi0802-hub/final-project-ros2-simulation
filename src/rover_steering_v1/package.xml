@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rover_steering_v1</name>
+  <version>1.0.0</version>
+  <description>Rover meshes and robot description adapted from simulasi_rover.</description>
+  <maintainer email="radityazhafran.05@gmail.com">rdtzaa</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>ros2_livox_simulation</exec_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>
