@@ -1,9 +1,18 @@
-<?xml version="1.0" ?>
-<sdf version="1.6">
+<?xml version="1.0"?>
+<sdf version="1.9">
   <world name="dummy_arena">
-
-    <!-- Cahaya Matahari Standalone (tanpa perlu download) -->
-    <light name='sun' type='directional'>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
+    <physics name="default_physics" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <light name="sun" type="directional">
       <cast_shadows>1</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
@@ -16,13 +25,16 @@
       </attenuation>
       <direction>-0.5 0.1 -0.9</direction>
     </light>
-
-    <!-- Lantai Datar dengan Friksi 1.0 (sama seperti arch_arena_v2 agar skid-steer rover bisa belok mulus) -->
-    <model name='ground_plane'>
+    <model name="ground_plane">
       <static>1</static>
-      <link name='link'>
-        <collision name='collision'>
-          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
           <surface>
             <friction>
               <ode>
@@ -32,181 +44,271 @@
             </friction>
           </surface>
         </collision>
-        <visual name='visual'>
-          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Grey</name>
-            </script>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
-
-    <!-- ================= TEMBOK KELILING (30m x 30m) ================= -->
-    <!-- Tembok Utara -->
     <model name="wall_north">
       <pose>15 0 1 0 0 0</pose>
       <static>true</static>
       <link name="link">
-        <collision name="collision"><geometry><box><size>0.5 30 2</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.5 30 2</size></box></geometry>
-          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 30 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 30 2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
         </visual>
       </link>
     </model>
-
-    <!-- Tembok Selatan -->
     <model name="wall_south">
       <pose>-15 0 1 0 0 0</pose>
       <static>true</static>
       <link name="link">
-        <collision name="collision"><geometry><box><size>0.5 30 2</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.5 30 2</size></box></geometry>
-          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 30 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 30 2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
         </visual>
       </link>
     </model>
-
-    <!-- Tembok Timur -->
     <model name="wall_east">
       <pose>0 15 1 0 0 0</pose>
       <static>true</static>
       <link name="link">
-        <collision name="collision"><geometry><box><size>30 0.5 2</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>30 0.5 2</size></box></geometry>
-          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>30 0.5 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>30 0.5 2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
         </visual>
       </link>
     </model>
-
-    <!-- Tembok Barat -->
     <model name="wall_west">
       <pose>0 -15 1 0 0 0</pose>
       <static>true</static>
       <link name="link">
-        <collision name="collision"><geometry><box><size>30 0.5 2</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>30 0.5 2</size></box></geometry>
-          <material><script><uri>file://media/materials/scripts/gazebo.material</uri><name>Gazebo/Grey</name></script></material>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>30 0.5 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>30 0.5 2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
         </visual>
       </link>
     </model>
-
-    <!-- ================= OBJEK 1: RINTANGAN TEGAK 90 DERAJAT (NON-TRAVERSABLE) ================= -->
-    <!-- Dinding / balok tegak lurus 90 derajat berwarna merah, tidak bisa dinaiki/dilewati rover -->
     <model name="obstacle_wall_90deg">
       <pose>5.0 -2.5 0.6 0 0 0</pose>
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>1.5 1.5 1.2</size></box></geometry>
+          <geometry>
+            <box>
+              <size>1.5 1.5 1.2</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>1.5 1.5 1.2</size></box></geometry>
+          <geometry>
+            <box>
+              <size>1.5 1.5 1.2</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Red</name>
-            </script>
+            <ambient>0.85 0.1 0.1 1</ambient>
+            <diffuse>0.85 0.1 0.1 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
-
-    <!-- ================= OBJEK 2: TANJAKAN LANDAI DENGAN TEMBOK PEMBATAS TEBAL ================= -->
-    <!-- Tanjakan hijau berundak landai (~8.5 deg) lebar 2.2m dengan tembok samping tebal 35cm, tinggi 1.0m -->
     <model name="traversable_ramp">
       <static>true</static>
-      
-      <!-- Bagian 1: Tanjakan Naik (Slope ~8.5 derajat, Lebar 2.2m) -->
       <link name="ramp_up">
         <pose>4.0 2.5 0.15 0 -0.149 0</pose>
         <collision name="collision">
-          <geometry><box><size>2.03 2.2 0.06</size></box></geometry>
-          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+          <geometry>
+            <box>
+              <size>2.03 2.2 0.06</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2.03 2.2 0.06</size></box></geometry>
+          <geometry>
+            <box>
+              <size>2.03 2.2 0.06</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Green</name>
-            </script>
+            <ambient>0.1 0.65 0.15 1</ambient>
+            <diffuse>0.1 0.65 0.15 1</diffuse>
           </material>
         </visual>
       </link>
-
-      <!-- Bagian 2: Puncak Platform Datar (Tinggi 30 cm, Lebar 2.2m) -->
       <link name="ramp_top">
         <pose>6.0 2.5 0.15 0 0 0</pose>
         <collision name="collision">
-          <geometry><box><size>2.0 2.2 0.30</size></box></geometry>
-          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+          <geometry>
+            <box>
+              <size>2.0 2.2 0.30</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2.0 2.2 0.30</size></box></geometry>
+          <geometry>
+            <box>
+              <size>2.0 2.2 0.30</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Green</name>
-            </script>
+            <ambient>0.1 0.65 0.15 1</ambient>
+            <diffuse>0.1 0.65 0.15 1</diffuse>
           </material>
         </visual>
       </link>
-
-      <!-- Bagian 3: Tanjakan Turun (Slope ~8.5 derajat, Lebar 2.2m) -->
       <link name="ramp_down">
         <pose>8.0 2.5 0.15 0 0.149 0</pose>
         <collision name="collision">
-          <geometry><box><size>2.03 2.2 0.06</size></box></geometry>
-          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+          <geometry>
+            <box>
+              <size>2.03 2.2 0.06</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2.03 2.2 0.06</size></box></geometry>
+          <geometry>
+            <box>
+              <size>2.03 2.2 0.06</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Green</name>
-            </script>
+            <ambient>0.1 0.65 0.15 1</ambient>
+            <diffuse>0.1 0.65 0.15 1</diffuse>
           </material>
         </visual>
       </link>
-
-      <!-- Tembok Pembatas Samping KIRI (Tebal 35 cm, Tinggi 1.6 meter, Warna Kuning) -->
       <link name="guardrail_left">
         <pose>6.0 3.78 0.80 0 0 0</pose>
         <collision name="collision">
-          <geometry><box><size>6.0 0.35 1.60</size></box></geometry>
+          <geometry>
+            <box>
+              <size>6.0 0.35 1.60</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>6.0 0.35 1.60</size></box></geometry>
+          <geometry>
+            <box>
+              <size>6.0 0.35 1.60</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Yellow</name>
-            </script>
+            <ambient>1 0.8 0.05 1</ambient>
+            <diffuse>1 0.8 0.05 1</diffuse>
           </material>
         </visual>
       </link>
-
-      <!-- Tembok Pembatas Samping KANAN (Tebal 35 cm, Tinggi 1.6 meter, Warna Kuning) -->
       <link name="guardrail_right">
         <pose>6.0 1.22 0.80 0 0 0</pose>
         <collision name="collision">
-          <geometry><box><size>6.0 0.35 1.60</size></box></geometry>
+          <geometry>
+            <box>
+              <size>6.0 0.35 1.60</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>6.0 0.35 1.60</size></box></geometry>
+          <geometry>
+            <box>
+              <size>6.0 0.35 1.60</size>
+            </box>
+          </geometry>
           <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Yellow</name>
-            </script>
+            <ambient>1 0.8 0.05 1</ambient>
+            <diffuse>1 0.8 0.05 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
-
   </world>
 </sdf>

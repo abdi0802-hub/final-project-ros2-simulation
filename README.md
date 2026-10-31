@@ -1,88 +1,147 @@
-# ros2_fp — simulasi rover dan arena dummy
+# ros2_fp — arena rover untuk tugas internship
 
-Workspace ROS 2 Humble + Gazebo Classic 11, diadaptasi dari
-`~/Documents/simulasi_rover`. Arena 30 × 30 m, rintangan, ramp, mesh rover,
-penggerak empat roda, Livox MID-360, dan IMU mengikuti referensi.
+Arena dummy dan rover empat roda untuk **Gazebo Harmonic (gz-sim 8)**.
+Environment mengikuti modul sebelumnya:
 
-## Paket
-
-| Direktori di `src` | Nama paket ROS | Isi |
+| Ubuntu | ROS 2 | Integrasi Gazebo |
 | --- | --- | --- |
-| `sim_bringup` | `sim_bringup` | Launch dan arena dummy |
-| `rover_steering_v1` | `rover_steering_v1` | Mesh dan deskripsi robot |
-| `livox_laser_simulation_ros2` | `ros2_livox_simulation` | Plugin sensor dan pola scan Livox |
-| `livox_ros_driver2` | `livox_ros_driver2` | Tipe pesan Livox dan source driver asli |
+| 22.04 | Humble | `gz-harmonic` + `ros-humble-ros-gzharmonic` dari repository OSRF |
+| 24.04 | Jazzy | `ros-jazzy-ros-gz` |
 
-Nav2, FAST-LIO, dan aplikasi kontrol dari workspace referensi tidak disertakan.
-Spawn tidak menjalankan node driver LiDAR fisik.
+Workspace memakai sensor standar. Tidak memerlukan Livox SDK, driver hardware,
+FAST-LIO, atau Gazebo Classic. Mesh rover dan geometri arena mengikuti referensi
+`simulasi_rover`; world dan material disertakan secara lokal tanpa download Fuel.
 
-## Build
+## Mulai dari environment modul sebelumnya
 
-Gunakan terminal baru, cukup source ROS Humble. Workspace referensi tidak perlu
-di-source. Dependency ROS/Gazebo dan Livox SDK2 sudah tersedia pada komputer ini.
-Driver asli membutuhkan header dan library Livox SDK2 di `/usr/local` saat build.
+ROS 2 sesuai versi Ubuntu harus sudah terpasang. Buka terminal Bash baru:
 
 ```bash
-source /opt/ros/humble/setup.bash
 cd ~/Documents/ros2_fp
-colcon build --symlink-install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+bash scripts/install_dependencies.sh --check
 ```
 
-Jika dipindahkan ke komputer lain, pasang dependency dengan `rosdep install
---from-paths src --ignore-src -r -y --rosdistro humble` dan pasang Livox SDK2
-sebelum build. Source driver asli dan lisensinya tetap disertakan.
-
-## Jalankan arena dan robot
+Perintah tersebut hanya memeriksa dependency. Bila ada yang belum tersedia:
 
 ```bash
-source /opt/ros/humble/setup.bash
-source /usr/share/gazebo/setup.sh
+bash scripts/install_dependencies.sh --install
+```
+
+Mode instalasi menampilkan simulasi perubahan paket, lalu apt meminta konfirmasi.
+Pada Humble, gunakan bridge **Humble–Harmonic** yang sama dengan modul sebelumnya;
+`ros-humble-ros-gz` biasa menargetkan Fortress dan bukan penggantinya.
+
+## Build dan jalankan
+
+```bash
 cd ~/Documents/ros2_fp
-source install/setup.bash
+source scripts/setup_env.bash
+colcon build --symlink-install --executor sequential
+source install/local_setup.bash
 ros2 launch sim_bringup dummy.launch.py
 ```
 
-Launch juga menambahkan path media/shader Gazebo, mesh, dan plugin Livox.
-Tidak ada path runtime yang menunjuk `simulasi_rover` atau `Downloads`.
-Sensor Livox diaktifkan dengan `always_on` agar menerbitkan data tanpa
-bergantung pada visualisasi sensor di GUI Gazebo.
+Pada terminal berikutnya cukup jalankan `source scripts/setup_env.bash` dari root
+workspace. Jangan source setup Gazebo Classic atau workspace `simulasi_rover`.
+Launch memeriksa keberadaan gz-sim 8 dan menghentikan proses bila versinya salah.
 
-Tanpa jendela Gazebo:
+Robot muncul di tengah arena, dengan sensor aktif dan waktu simulasi berjalan.
+Arena berukuran 30 × 30 m, memiliki tembok keliling, balok penghalang merah,
+dan ramp hijau dengan pembatas kuning.
+
+## Kontrol dengan keyboard
+
+Di terminal kedua:
 
 ```bash
-ros2 launch sim_bringup dummy.launch.py gui:=false
+cd ~/Documents/ros2_fp
+source scripts/setup_env.bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-Atur posisi spawn atau mulai dengan simulasi dijeda:
+Ikuti petunjuk tombol pada terminal teleop. Input `/cmd_vel` menggunakan
+`geometry_msgs/msg/Twist`, dengan `linear.x` untuk maju/mundur dan `angular.z`
+untuk belok. Batas kecepatan model adalah 1 m/s dan 1 rad/s.
+
+## Antarmuka ROS untuk tugas
+
+| Topik | Tipe | Keterangan |
+| --- | --- | --- |
+| `/cmd_vel` | `geometry_msgs/msg/Twist` | Perintah gerak dari ROS ke simulator |
+| `/odom` | `nav_msgs/msg/Odometry` | Odometri rover, frame `odom` → `base_footprint` |
+| `/scan` | `sensor_msgs/msg/LaserScan` | LiDAR 2D 360°, 360 sampel, 10 Hz, jarak 0.1–30 m |
+| `/points` | `sensor_msgs/msg/PointCloud2` | Titik dari pemindai 2D yang sama, bukan pemindaian 3D |
+| `/imu` | `sensor_msgs/msg/Imu` | IMU, target 100 Hz, frame `imu_link` |
+| `/joint_states` | `sensor_msgs/msg/JointState` | Joint empat roda |
+| `/clock` | `rosgraph_msgs/msg/Clock` | Waktu simulasi |
+| `/tf`, `/tf_static` | `tf2_msgs/msg/TFMessage` | Transformasi robot dan sensor |
+| `/robot_description` | `std_msgs/msg/String` | Deskripsi robot |
+
+LiDAR memakai frame `lidar_link`. Node peserta yang menggunakan waktu atau TF
+perlu `use_sim_time:=true`. Bridge ada di
+`src/sim_bringup/config/bridge.yaml`; hanya `/cmd_vel` yang mengalir ROS → Gazebo.
+
+## Opsi launch
 
 ```bash
-ros2 launch sim_bringup dummy.launch.py x:=1.0 y:=-1.0 z:=0.1 yaw:=1.57 pause:=true
+# Posisi dan orientasi awal (meter dan radian)
+ros2 launch sim_bringup dummy.launch.py x:=1.0 y:=-1.0 z:=0.1 yaw:=1.57
+
+# Mulai dijeda; tekan Play di Gazebo
+ros2 launch sim_bringup dummy.launch.py pause:=true
+
+# Tanpa GUI, sensor dirender melalui EGL
+ros2 launch sim_bringup dummy.launch.py gui:=false headless_rendering:=true
+
+# Renderer software untuk sesi tanpa akselerasi GPU
+LIBGL_ALWAYS_SOFTWARE=1 ros2 launch sim_bringup dummy.launch.py gui:=false headless_rendering:=true
 ```
 
-Argumen `world:=/path/arena.sdf` dapat digunakan untuk world lain.
-Hentikan simulasi dengan `Ctrl+C` di terminal launch.
+World lain dapat dipilih dengan `world:=/path/world.sdf world_name:=nama_world`.
+Hentikan simulasi dengan `Ctrl+C` pada terminal launch.
 
-## Topik
+GUI memakai `ogre` pada Humble untuk kompatibilitas Mesa Ubuntu 22.04, dan
+`ogre2` pada Jazzy. Pilihan ini hanya memengaruhi tampilan; sensor tetap memakai
+Ogre 2. Renderer GUI dapat dipilih melalui `render_engine_gui:=ogre2` atau `ogre`.
 
-| Topik | Fungsi |
-| --- | --- |
-| `/cmd_vel` | Input `geometry_msgs/msg/Twist` untuk menggerakkan rover |
-| `/odom` | Odometri robot |
-| `/joint_states` | Posisi joint roda |
-| `/imu` | Data IMU |
-| `/livox/lidar` | Data `livox_ros_driver2/msg/CustomMsg` |
-| `/livox/lidar_PointCloud2` | Data `sensor_msgs/msg/PointCloud2` |
-| `/clock`, `/tf`, `/tf_static`, `/robot_description` | Waktu dan model robot |
+## Struktur source
 
-## Pemeriksaan
+```text
+src/
+├── rover_steering_v1/
+│   ├── meshes/       # Mesh rover lokal
+│   └── urdf/         # Model, penggerak, LiDAR, dan IMU
+└── sim_bringup/
+    ├── config/       # Bridge ROS ↔ Gazebo
+    ├── launch/       # dummy.launch.py
+    ├── test/         # Pemeriksaan aset dan antarmuka
+    └── worlds/       # dummy_arena.sdf
+scripts/
+├── install_dependencies.sh
+├── setup_env.bash
+└── smoke_test.py
+```
 
-Setelah source workspace hasil build:
+## Pemeriksaan otomatis
 
 ```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest src/sim_bringup/test -q
+source scripts/setup_env.bash
+colcon test --event-handlers console_direct+
+colcon test-result --verbose
 python3 scripts/smoke_test.py
 ```
 
-Smoke test menjalankan Gazebo tanpa GUI pada ROS domain dan port Gazebo terpisah,
-memeriksa spawn dan data sensor, lalu memeriksa respons gerak terhadap `/cmd_vel`.
-Hasil launch dicatat di `log/smoke/launch.log`.
+Smoke test membuat ROS domain dan Gazebo partition terpisah, menjalankan arena
+secara headless, memeriksa data sensor dan TF, kemudian menguji gerak maju serta
+putaran positif dari posisi fisik robot di simulator. Bridge posisi untuk tes
+berjalan hanya selama pengujian. Proses milik pengujian dihentikan setelah selesai. Log dan hasil
+JSON tersedia di `log/smoke/`.
+
+Workflow `.github/workflows/harmonic.yml` menyediakan pengujian yang sama untuk
+Ubuntu 22.04/Humble dan Ubuntu 24.04/Jazzy pada push/PR GitHub. Renderer software
+dipakai di CI; pengujian ini tidak memerlukan GPU khusus.
+
+Ringkasan pengujian migrasi tersedia di [VALIDATION.md](VALIDATION.md).
+
+Referensi: [migrasi ke Gazebo Sim](https://gazebosim.org/docs/harmonic/migrating_gazebo_classic_ros2_packages/)
+dan [pasangan ROS/Gazebo](https://gazebosim.org/docs/harmonic/ros_installation/).
