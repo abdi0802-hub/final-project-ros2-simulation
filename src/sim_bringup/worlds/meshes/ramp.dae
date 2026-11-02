@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <created>2026-11-01T00:00:00Z</created>
+    <modified>2026-11-01T00:00:00Z</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <!-- Closed unit wedge. Local +X runs uphill; scale to run, width, rise. -->
+  <library_geometries>
+    <geometry id="ramp" name="ramp">
+      <mesh>
+        <source id="positions">
+          <float_array id="positions-array" count="18">0 -0.5 0  0 0.5 0  1 -0.5 0  1 0.5 0  1 -0.5 1  1 0.5 1</float_array>
+          <technique_common>
+            <accessor source="#positions-array" count="6" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="vertices"><input semantic="POSITION" source="#positions"/></vertices>
+        <triangles count="8">
+          <input semantic="VERTEX" source="#vertices" offset="0"/>
+          <p>0 1 3  0 3 2  0 4 5  0 5 1  2 3 5  2 5 4  0 2 4  1 5 3</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="scene"><node id="ramp-node"><instance_geometry url="#ramp"/></node></visual_scene>
+  </library_visual_scenes>
+  <scene><instance_visual_scene url="#scene"/></scene>
+</COLLADA>

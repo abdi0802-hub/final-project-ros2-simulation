@@ -88,6 +88,7 @@ def _launch_simulation(context):
     )
     return [
         AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', str(description_share.parent)),
+        AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', str(bringup_share / 'worlds')),
         gazebo, publisher, bridge,
         RegisterEventHandler(OnProcessExit(target_action=spawn, on_exit=_spawn_finished)),
         spawn,
@@ -106,7 +107,7 @@ def generate_launch_description():
         ),
         'pause': ('false', 'Start with physics paused.'),
         'headless_rendering': ('false', 'Use EGL for sensors when gui:=false.'),
-        'x': ('0.0', 'Initial rover x coordinate in meters.'),
+        'x': ('-11.0', 'Initial rover x coordinate in meters; west of the central ramp.'),
         'y': ('0.0', 'Initial rover y coordinate in meters.'),
         'z': ('0.1', 'Initial rover height in meters.'),
         'yaw': ('0.0', 'Initial rover yaw in radians.'),

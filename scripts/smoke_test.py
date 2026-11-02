@@ -21,6 +21,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=float, default=120.0)
     parser.add_argument('--gui', action='store_true', help='Also launch the Gazebo GUI.')
+    parser.add_argument('--arena-course', action='store_true',
+                        help='Also drive up all four ramps and decode all corner markers (requires OpenCV ArUco).')
     args = parser.parse_args()
     workspace = Path(__file__).resolve().parents[1]
     logs = workspace / 'log/smoke'
@@ -38,7 +40,7 @@ def main():
     from geometry_msgs.msg import PoseArray, Twist
     from nav_msgs.msg import Odometry
     from rosgraph_msgs.msg import Clock
-    from sensor_msgs.msg import Imu, JointState, LaserScan, PointCloud2
+    from sensor_msgs.msg import CameraInfo, Image, Imu, JointState, LaserScan, PointCloud2
     from tf2_ros import Buffer, TransformException, TransformListener
 
     rclpy.init()
@@ -48,7 +50,8 @@ def main():
     subscriptions = []
     message_types = {'/clock': Clock, '/odom': Odometry, '/imu': Imu,
                      '/joint_states': JointState, '/scan': LaserScan, '/points': PointCloud2,
-                     '/_test/dynamic_poses': PoseArray}
+                     '/_test/dynamic_poses': PoseArray,
+                     '/camera/image_raw': Image, '/camera/camera_info': CameraInfo}
 
     def remember(topic, message):
         received[topic] = message
@@ -93,7 +96,8 @@ def main():
                     stamp = received['/clock'].clock
                     if stamp.sec * 1_000_000_000 + stamp.nanosec > 0:
                         try:
-                            for frame in ('base_footprint', 'base_link', 'lidar_link', 'imu_link'):
+                            for frame in ('base_footprint', 'base_link', 'lidar_link', 'imu_link',
+                                          'camera_link', 'camera_optical_frame'):
                                 transforms.lookup_transform('odom', frame, Time())
                         except TransformException:
                             pass
@@ -116,7 +120,14 @@ def main():
             assert received['/imu'].header.frame_id == 'imu_link'
             assert math.isfinite(received['/imu'].linear_acceleration.z)
             assert {'wheel1_joint', 'wheel2_joint', 'wheel3_joint', 'wheel4_joint'} <= set(received['/joint_states'].name)
-            print('PASS: clock, odom, lidar scan/cloud, IMU, joints and all TF frames.', flush=True)
+            image = received['/camera/image_raw']
+            info = received['/camera/camera_info']
+            assert (image.width, image.height) == (1280, 720)
+            assert image.encoding == 'rgb8' and len(image.data) == image.step * image.height
+            assert (info.width, info.height) == (image.width, image.height)
+            assert image.header.frame_id == info.header.frame_id == 'camera_optical_frame'
+            assert info.k[0] > 0 and info.k[4] > 0 and info.k[8] == 1
+            print('PASS: clock, odom, lidar scan/cloud, IMU, camera/calibration, joints and all TF frames.', flush=True)
 
             settle_until = time.monotonic() + (15 if args.gui else 2)
             while time.monotonic() < settle_until:
@@ -167,6 +178,91 @@ def main():
                                              math.cos(yaw(pose.orientation) - start_yaw)),
                 0.15,
             )
+            course = {}
+            if args.arena_course:
+                import cv2
+                import numpy as np
+                dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+
+                def teleport(x, y, heading):
+                    commands.publish(Twist())
+                    request = (f'name: "rover", position: {{x: {x}, y: {y}, z: 0.1}}, '
+                               f'orientation: {{z: {math.sin(heading / 2)}, '
+                               f'w: {math.cos(heading / 2)}}}')
+                    response = subprocess.run(
+                        ['gz', 'service', '-s', '/world/dummy_arena/set_pose',
+                         '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
+                         '--timeout', '10000', '--req', request],
+                        capture_output=True, text=True, timeout=15,
+                    )
+                    assert response.returncode == 0 and 'data: true' in response.stdout, response
+                    deadline = time.monotonic() + 20
+                    old_images = counts['/camera/image_raw']
+                    while time.monotonic() < deadline:
+                        commands.publish(Twist())
+                        rclpy.spin_once(node, timeout_sec=0.05)
+                        pose = received['/_test/dynamic_poses'].poses[0]
+                        error = math.atan2(math.sin(yaw(pose.orientation) - heading),
+                                           math.cos(yaw(pose.orientation) - heading))
+                        if (math.hypot(pose.position.x - x, pose.position.y - y) < 0.15
+                                and abs(error) < 0.05 and abs(pose.position.z) < 0.08
+                                and counts['/camera/image_raw'] > old_images + 5):
+                            return
+                    raise RuntimeError(f'Robot did not settle at {(x, y, heading)}')
+
+                ramp_results = {}
+                for side, x, y, heading in (
+                    ('west', -11, 0, 0), ('east', 11, 0, math.pi),
+                    ('north', 0, 11, -math.pi / 2), ('south', 0, -11, math.pi / 2),
+                ):
+                    teleport(x, y, heading)
+                    climb = Twist()
+                    climb.linear.x = 0.8
+                    deadline = time.monotonic() + args.timeout
+                    next_progress = time.monotonic() + 10
+                    while time.monotonic() < deadline:
+                        commands.publish(climb)
+                        rclpy.spin_once(node, timeout_sec=0.05)
+                        pose = received['/_test/dynamic_poses'].poses[0]
+                        distance_up = ((pose.position.x - x) * math.cos(heading)
+                                       + (pose.position.y - y) * math.sin(heading))
+                        if distance_up >= 8.0:
+                            commands.publish(Twist())
+                            assert abs(pose.position.z - 1.2) < 0.12, (side, pose)
+                            ramp_results[side] = {'travel_m': distance_up, 'height_m': pose.position.z}
+                            print(f'PASS: ramp {side}, height {pose.position.z:.3f} m.', flush=True)
+                            break
+                        if time.monotonic() >= next_progress:
+                            print(f'Climbing {side}: {distance_up:.2f} m, z={pose.position.z:.2f}', flush=True)
+                            next_progress = time.monotonic() + 10
+                    else:
+                        commands.publish(Twist())
+                        raise RuntimeError(f'Could not climb ramp {side}; progress {distance_up:.3f} m')
+
+                marker_results = {}
+                for marker_id, (x, y) in enumerate(((10, 10), (-10, 10), (-10, -10), (10, -10))):
+                    teleport(x, y, math.atan2(y, x))
+                    deadline = time.monotonic() + 20
+                    while time.monotonic() < deadline:
+                        rclpy.spin_once(node, timeout_sec=0.1)
+                        image = received['/camera/image_raw']
+                        # Respect ROS row stride, even when rows include padding.
+                        pixels = np.frombuffer(image.data, dtype=np.uint8).reshape(image.height, image.step)
+                        rgb = pixels[:, :image.width * 3].reshape(image.height, image.width, 3)
+                        gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+                        if hasattr(cv2.aruco, 'ArucoDetector'):
+                            corners, ids, _ = cv2.aruco.ArucoDetector(dictionary).detectMarkers(gray)
+                        else:
+                            corners, ids, _ = cv2.aruco.detectMarkers(gray, dictionary)
+                        if ids is not None and marker_id in ids.flatten():
+                            cv2.imwrite(str(logs / f'aruco_{marker_id}.png'), cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+                            marker_results[str(marker_id)] = {'approach_xy': [x, y], 'detected_ids': ids.flatten().tolist()}
+                            print(f'PASS: rendered corner ArUco ID {marker_id}.', flush=True)
+                            break
+                    else:
+                        cv2.imwrite(str(logs / f'aruco_{marker_id}_failed.png'), gray)
+                        raise RuntimeError(f'ArUco {marker_id} was not readable from its approach')
+                course = {'ramps': ramp_results, 'markers': marker_results}
             content = log_path.read_text(errors='replace')
             for error in ('Failed to load system plugin', 'Unable to find file',
                           'Failed to create', 'Service call timed out'):
@@ -175,7 +271,7 @@ def main():
                       'forward_m': distance, 'turn_rad': angle,
                       'wheel_odometry_m': odom_distance,
                       'topic_counts': counts, 'scan_frame': scan.header.frame_id,
-                      'point_frame': cloud.header.frame_id}
+                      'point_frame': cloud.header.frame_id, 'arena_course': course}
             (logs / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
             print(f'PASS: forward {distance:.3f} m and positive turn {angle:.3f} rad.', flush=True)
             print(f'Log: {log_path}', flush=True)

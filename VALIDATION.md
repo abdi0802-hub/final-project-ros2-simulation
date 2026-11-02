@@ -1,5 +1,46 @@
 # Validasi migrasi Harmonic
 
+## Preview Gazebo Classic — 2 November 2026
+
+`python3 scripts/preview_classic.py` menghasilkan world sementara SDF 1.7
+untuk melihat geometri arena pada Gazebo Classic 11. Model arena berasal dari
+world utama yang sama; plugin Harmonic dikeluarkan dari salinan preview.
+
+- `python3 scripts/preview_classic.py --check`: validator Classic lulus.
+- Ke-14 model arena dipertahankan, dan URI mesh preview menunjuk aset lokal yang ada.
+- 15 tes aset tetap lulus setelah penambahan helper.
+- Tes startup `gzserver --iters 5` timeout pada preview maupun world kosong
+  minimal di sesi ini; GUI preview belum diverifikasi.
+
+## Perubahan arena platform dan ArUco — 1 November 2026
+
+Arena kini berisi platform 8 × 8 × 1,2 m, empat ramp 3 × 6 m, dan empat
+papan DICT_4X4_50 ID 0–3 di sudut arena. Rover memperoleh kamera RGB depan,
+CameraInfo, frame optik, dan spawn default pada (-11, 0).
+
+Verifikasi perubahan ini pada host pengembangan:
+
+- Build kedua paket dengan `colcon build --symlink-install --executor sequential`: lulus.
+- `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q`: 15 tes lulus,
+  termasuk decode OpenCV dari proyeksi geometri muka depan keempat marker.
+- `ctest --test-dir build/sim_bringup --output-on-failure`: lulus.
+- `ign sdf -k` pada world dan hasil konversi URDF rover: valid (libsdformat 12).
+- Mesh ramp tertutup dan aset mesh tersedia pada package share hasil install.
+- Review terpisah menemukan refleksi pola marker; arah kolom diperbaiki dan
+  empat tes decode yang sebelumnya gagal sekarang lulus.
+
+Host saat ini mempunyai Gazebo Classic 11 / Fortress 6, tidak mempunyai
+Gazebo Harmonic 8. Smoke test perubahan ini berhenti pada guard versi launch.
+**Rendering kamera, pendakian fisik, dan decode gambar langsung di Harmonic
+belum diverifikasi untuk arena baru.** Opsi `scripts/smoke_test.py --arena-course`
+disediakan untuk menjalankan pemeriksaan tersebut di environment Harmonic;
+memerlukan OpenCV Python dengan `cv2.aruco`.
+
+Variabel `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` menghindari konflik plugin anyio
+yang terpasang pada host dengan versi pytest sistem; tidak mengubah paket proyek.
+
+## Hasil migrasi sebelum perubahan arena
+
 Pengujian dilakukan pada 1 November 2026 dalam filesystem Ubuntu terisolasi,
 dengan paket ROS/Gazebo dari apt dan renderer software Mesa/llvmpipe. Instalasi
 ROS/Gazebo pada sistem laptop tidak diganti untuk pengujian ini.
