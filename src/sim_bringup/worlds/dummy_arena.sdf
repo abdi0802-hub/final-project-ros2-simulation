@@ -187,6 +187,175 @@
             <specular>0 0 0 1</specular>
           </material>
         </visual>
+        <!-- Solid guardrails: 1.2 m above deck, 0.2 m thick, outside the 8 m deck. Four 3 m ramp openings stay clear. -->
+        <collision name="guardrail_east_negative_collision">
+          <pose>4.1 -2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_east_negative">
+          <pose>4.1 -2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_east_positive_collision">
+          <pose>4.1 2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_east_positive">
+          <pose>4.1 2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_west_negative_collision">
+          <pose>-4.1 -2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_west_negative">
+          <pose>-4.1 -2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_west_positive_collision">
+          <pose>-4.1 2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_west_positive">
+          <pose>-4.1 2.85 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.2 2.7 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_north_negative_collision">
+          <pose>-2.85 4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_north_negative">
+          <pose>-2.85 4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_north_positive_collision">
+          <pose>2.85 4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_north_positive">
+          <pose>2.85 4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_south_negative_collision">
+          <pose>-2.85 -4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_south_negative">
+          <pose>-2.85 -4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_south_positive_collision">
+          <pose>2.85 -4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="guardrail_south_positive">
+          <pose>2.85 -4.1 1.2 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2.7 0.2 1.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
       </link>
     </model>
     <model name="ramp_west">
@@ -219,6 +388,53 @@
           <material>
             <ambient>0.14 0.55 0.28 1</ambient>
             <diffuse>0.14 0.55 0.28 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <!-- Side barrier inner faces at y=+/-1.5 preserve the full 3 m ramp. Bottom and top follow the slope, meeting platform rails at the crest. -->
+        <collision name="guardrail_left_collision">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_left">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_right_collision">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_right">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
             <specular>0 0 0 1</specular>
           </material>
         </visual>
@@ -257,6 +473,53 @@
             <specular>0 0 0 1</specular>
           </material>
         </visual>
+        <!-- Side barrier inner faces at y=+/-1.5 preserve the full 3 m ramp. Bottom and top follow the slope, meeting platform rails at the crest. -->
+        <collision name="guardrail_left_collision">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_left">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_right_collision">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_right">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
       </link>
     </model>
     <model name="ramp_north">
@@ -292,6 +555,53 @@
             <specular>0 0 0 1</specular>
           </material>
         </visual>
+        <!-- Side barrier inner faces at y=+/-1.5 preserve the full 3 m ramp. Bottom and top follow the slope, meeting platform rails at the crest. -->
+        <collision name="guardrail_left_collision">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_left">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_right_collision">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_right">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
       </link>
     </model>
     <model name="ramp_south">
@@ -324,6 +634,53 @@
           <material>
             <ambient>0.14 0.55 0.28 1</ambient>
             <diffuse>0.14 0.55 0.28 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <!-- Side barrier inner faces at y=+/-1.5 preserve the full 3 m ramp. Bottom and top follow the slope, meeting platform rails at the crest. -->
+        <collision name="guardrail_left_collision">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_left">
+          <pose>0 1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
+            <specular>0 0 0 1</specular>
+          </material>
+        </visual>
+        <collision name="guardrail_right_collision">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="guardrail_right">
+          <pose>0 -1.6 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>meshes/ramp_guardrail.dae</uri>
+              <scale>6 0.2 1.2</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>1 0.78 0.08 1</ambient>
+            <diffuse>1 0.78 0.08 1</diffuse>
             <specular>0 0 0 1</specular>
           </material>
         </visual>
