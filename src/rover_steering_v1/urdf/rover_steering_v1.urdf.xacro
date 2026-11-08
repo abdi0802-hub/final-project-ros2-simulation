@@ -271,7 +271,7 @@
       <left_joint>wheel2_joint</left_joint>
       <right_joint>wheel3_joint</right_joint>
       <right_joint>wheel4_joint</right_joint>
-      <wheel_separation>0.85</wheel_separation>
+      <wheel_separation>0.69</wheel_separation>
       <wheel_radius>0.15</wheel_radius>
       <topic>/cmd_vel</topic>
       <odom_topic>/odom</odom_topic>
